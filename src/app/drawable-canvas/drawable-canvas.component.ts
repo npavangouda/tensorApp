@@ -1,13 +1,15 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { switchMap, takeUntil, pairwise } from 'rxjs/operators';
+import { CanvasService } from '../services/canvas.service';
+import { AiService } from '../services/ai.service';
 
 @Component({
   selector: 'app-drawable-canvas',
   templateUrl: './drawable-canvas.component.html',
   styleUrls: ['./drawable-canvas.component.scss']
 })
-export class DrawableCanvasComponent implements OnInit {
+export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
   @ViewChild('aiCanvas') public aiCanvas: ElementRef;
   public width = 500;
@@ -17,7 +19,13 @@ export class DrawableCanvasComponent implements OnInit {
   canvasEl: HTMLCanvasElement;
   cx: CanvasRenderingContext2D;
 
-  constructor() { }
+  private canvasResetSub;
+  private canvasImageSub;
+
+  constructor(
+    private _canvasService: CanvasService,
+    private _aiService: AiService,
+  ) { }
 
   ngOnInit() {
     this.canvasEl = this.aiCanvas.nativeElement;
@@ -28,8 +36,20 @@ export class DrawableCanvasComponent implements OnInit {
 
 
     this.captureEvents(this.canvasEl);
+
+    this.canvasResetSub =  this._canvasService.resetCanvasObs$.subscribe((input: any) => {
+      this.cx.clearRect(0, 0, this.cx.canvas.width, this.cx.canvas.height);
+    });
+
+    this.canvasImageSub = this._canvasService.canvasImageObs$.subscribe(() => {
+      this._aiService.predict();
+    });
   }
 
+  ngOnDestroy() {
+    this.canvasResetSub.unsubscribe();
+    this.canvasImageSub.unsubscribe();
+  }
 
   private captureEvents(canvasEl: HTMLCanvasElement) {
     // this will capture all mousedown events from the canvas element

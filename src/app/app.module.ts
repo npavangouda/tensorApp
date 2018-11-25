@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DrawableCanvasComponent } from './drawable-canvas/drawable-canvas.component';
+import { CanvasService } from './services/canvas.service';
+import { AiService } from './services/ai.service';
 
 
 @NgModule({
@@ -15,7 +17,10 @@ import { DrawableCanvasComponent } from './drawable-canvas/drawable-canvas.compo
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    CanvasService,
+    AiService,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
