@@ -35,7 +35,6 @@
 
 .draw-area {
     grid-area: d;
-    min-height: 400px;
     border: 2px solid black;
 }
 
@@ -45,7 +44,6 @@
 }
 .actions {
     grid-area: a;
-    min-height: 30px;
 }
 .action-btns {
     display: grid;
@@ -59,7 +57,7 @@
 @media (min-width: 500px) {
     .main-content {
         grid-template-areas: 
-            'd d d d d d d d g g g g g g g g'
+            'd d d d d d g g g g g g g g g g'
             'a a a a a a a a a a a a a a a a';
     }
   }
