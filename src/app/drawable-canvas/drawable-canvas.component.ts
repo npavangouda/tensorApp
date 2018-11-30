@@ -12,8 +12,8 @@ import { AiService } from '../services/ai.service';
 export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
   @ViewChild('aiCanvas') public aiCanvas: ElementRef;
-  public width = 500;
-  public height = 400;
+  public width = 300;
+  public height = 300;
 
 
   canvasEl: HTMLCanvasElement;
@@ -42,13 +42,37 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
     });
 
     this.canvasImageSub = this._canvasService.canvasImageObs$.subscribe(() => {
-      this._aiService.predict();
+      const imgData = this.cx.getImageData(0, 0, 28, 28);
+      this._aiService.predict(imgData);
     });
   }
 
   ngOnDestroy() {
     this.canvasResetSub.unsubscribe();
     this.canvasImageSub.unsubscribe();
+  }
+
+  private download() {
+    const link = document.createElement('a');
+    link.addEventListener('click', (eve) => {
+      const imageData = this.cx.getImageData(0, 0, 28, 28);
+      this.cx.putImageData(imageData, 0, 0);
+      link.href = this.canvasEl.toDataURL();
+      link.download = 'myPainting.png';
+    });
+    link.click();
+  }
+
+  private grayscale() {
+      const imageData = this.cx.getImageData(0, 0, 28, 28);
+      const dataInfo = imageData.data;
+      for (let i = 0; i < dataInfo.length; i += 4) {
+        const avg = (dataInfo[i] + dataInfo[i + 1] + dataInfo[i + 2]) / 3;
+        dataInfo[i]     = avg; // red
+        dataInfo[i + 1] = avg; // green
+        dataInfo[i + 2] = avg; // blue
+      }
+      this.cx.putImageData(imageData, 0, 0);
   }
 
   private captureEvents(canvasEl: HTMLCanvasElement) {

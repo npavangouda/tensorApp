@@ -9,6 +9,7 @@ import { AiService } from './services/ai.service';
 })
 export class AppComponent implements OnInit {
   title = 'tesorApp';
+  predictions: any;
 
   constructor(
     private _canvasService: CanvasService,
@@ -17,13 +18,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this._aiService.loadModel();
   }
 
   OnReset(event: any) {
     this._canvasService.resetCanvas();
+    this.predictions = null;
   }
 
   OnPredict(event: any) {
     this._canvasService.canvasImage();
+    this.predictions = this._aiService.predictions;
   }
 }
