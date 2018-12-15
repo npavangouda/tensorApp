@@ -12,12 +12,17 @@ import { AiService } from '../services/ai.service';
 export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
   @ViewChild('aiCanvas') public aiCanvas: ElementRef;
+  // @ViewChild('fileReader') public fileReaderEleRef: ElementRef;
+
   public width = 300;
   public height = 300;
 
 
   canvasEl: HTMLCanvasElement;
   cx: CanvasRenderingContext2D;
+  // fileReaderInputEl: HTMLInputElement;
+  // fileReader = new FileReader();
+  // imgEl = new Image();
 
   private canvasResetSub;
   private canvasImageSub;
@@ -29,6 +34,7 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.canvasEl = this.aiCanvas.nativeElement;
+    // this.fileReaderInputEl = this.fileReaderEleRef.nativeElement;
     this.cx = this.canvasEl.getContext('2d');
 
     this.canvasEl.width = this.width;
@@ -42,7 +48,11 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
     });
 
     this.canvasImageSub = this._canvasService.canvasImageObs$.subscribe(() => {
+      // this.grayscale();
+      //
+      const scaled = this.cx.drawImage(this.canvasEl, 0, 0, 28, 28);
       const imgData = this.cx.getImageData(0, 0, 28, 28);
+      // this.download();
       this._aiService.predict(imgData);
     });
   }
@@ -51,6 +61,21 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
     this.canvasResetSub.unsubscribe();
     this.canvasImageSub.unsubscribe();
   }
+
+  // fileChanged(event: any) {
+  //   console.log('filechanged');
+  //   const fileBlob = this.fileReaderInputEl.files[0];
+  //   if (fileBlob.type.match('image.*')) {
+  //     this.fileReader.readAsDataURL(fileBlob);
+  //     this.fileReader.onload = () => {
+  //       this.imgEl.src = this.fileReader.result;
+  //       this.imgEl.onload = () => {
+  //         this.cx.drawImage(this.imgEl, 0, 0);
+  //       };
+  //     };
+  //   }
+
+  // }
 
   private download() {
     const link = document.createElement('a');
