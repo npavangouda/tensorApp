@@ -42,6 +42,7 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
 
     this.captureEvents(this.canvasEl);
+    this.captureTouchEvents(this.canvasEl);
 
     this.canvasResetSub =  this._canvasService.resetCanvasObs$.subscribe((input: any) => {
       this.cx.clearRect(0, 0, this.cx.canvas.width, this.cx.canvas.height);
@@ -52,7 +53,7 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
       //
       const scaled = this.cx.drawImage(this.canvasEl, 0, 0, 28, 28);
       const imgData = this.cx.getImageData(0, 0, 28, 28);
-      // this.download();
+      this.grayscale();
       this._aiService.predict(imgData);
     });
   }
@@ -100,6 +101,35 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
       this.cx.putImageData(imageData, 0, 0);
   }
 
+  private captureTouchEvents(canvasEl: HTMLCanvasElement) {
+    fromEvent(canvasEl, 'touchstart')
+    .pipe(
+      switchMap((e) => {
+        return fromEvent(canvasEl, 'touchmove')
+        .pipe(
+          takeUntil(fromEvent(canvasEl, 'touchend')),
+          pairwise()
+        );
+      })
+    )
+    .subscribe((res: [TouchEvent, TouchEvent]) => {
+      const rect = this.canvasEl.getBoundingClientRect();
+      // previous and current position with the offset
+      const prevPos = {
+        x: res[0].changedTouches[0].clientX - rect.left,
+        y: res[0].changedTouches[0].clientY - rect.top
+      };
+
+      const currentPos = {
+        x: res[1].changedTouches[0].clientX - rect.left,
+        y: res[1].changedTouches[0].clientY - rect.top
+      };
+
+      // this method we'll implement soon to do the actual drawing
+      this.drawOnCanvas(prevPos, currentPos);
+    });
+  }
+
   private captureEvents(canvasEl: HTMLCanvasElement) {
     // this will capture all mousedown events from the canvas element
     fromEvent(canvasEl, 'mousedown')
@@ -144,7 +174,7 @@ export class DrawableCanvasComponent implements OnInit, OnDestroy {
 
     this.cx.lineWidth = 10;
     this.cx.lineCap = 'round';
-    this.cx.strokeStyle = '#111111';
+    this.cx.strokeStyle = '#ef6c00';
 
     if (prevPos) {
       this.cx.moveTo(prevPos.x, prevPos.y); // from
