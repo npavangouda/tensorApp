@@ -17,6 +17,7 @@ export class AiService {
     async predict(imgData: ImageData) {
         const predTf = await tf.tidy(() => {
             let img = tf.fromPixels(imgData, 1);
+            // @ts-ignore
             img = img.reshape([1, 28, 28, 1]);
             img = tf.cast(img, 'float32');
 
